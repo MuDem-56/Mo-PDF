@@ -1,4 +1,4 @@
-"""Mo-PDF – Installer / Deinstaller (ohne Admin-Rechte, pro Benutzer)."""
+"""Mo-PDF – installer / uninstaller (per user, no admin rights). German or English UI."""
 import ctypes
 import os
 import shutil
@@ -13,13 +13,50 @@ from tkinter import messagebox, ttk
 
 APP_NAME = "Mo-PDF"
 APP_EXE = "Mo-PDF.exe"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 PUBLISHER = "Mo-PDF"
 REG_UNINSTALL = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\MoPDF"
 PROGID = "MoPDF.Dokument"
 INSTALL_DIR = os.path.join(os.environ["LOCALAPPDATA"], "Programs", APP_NAME)
 START_MENU_LNK = os.path.join(os.environ["APPDATA"], r"Microsoft\Windows\Start Menu\Programs", APP_NAME + ".lnk")
 NO_WINDOW = 0x08000000
+
+
+def _ui_lang():
+    try:
+        return "de" if (ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF) == 0x07 else "en"
+    except Exception:
+        return "en"
+
+
+LANG = _ui_lang()
+TEXT = {
+    "de": {
+        "desc": "PDFs lesen, zusammenfügen, teilen, drehen und komprimieren",
+        "doctype": "PDF-Dokument",
+        "closing": "Beende laufende Instanz …", "copying": "Kopiere Dateien …", "shortcuts": "Erstelle Verknüpfungen …",
+        "registering": "Registriere Programm …", "done": "Fertig!",
+        "tagline": "PDFs lesen, zusammenfügen, teilen, drehen,\nkomprimieren – komplett offline auf deinem PC.",
+        "folder": "Installationsordner:", "desktop": "Verknüpfung auf dem Desktop",
+        "openwith": "Bei PDF-Dateien unter „Öffnen mit“ anzeigen", "launch": "Nach der Installation starten",
+        "noadmin": "Keine Administratorrechte nötig.", "install": "Installieren", "cancel": "Abbrechen",
+        "failed": "Installation fehlgeschlagen:\n{e}", "finished": "Installation abgeschlossen. Du findest die App im Startmenü.",
+        "finish": "Fertig", "confirm_uninstall": "{app} wirklich vollständig entfernen?", "removed": "{app} wurde entfernt.",
+    },
+    "en": {
+        "desc": "Read, merge, split, rotate and compress PDFs",
+        "doctype": "PDF Document",
+        "closing": "Closing running instance …", "copying": "Copying files …", "shortcuts": "Creating shortcuts …",
+        "registering": "Registering app …", "done": "Done!",
+        "tagline": "Read, merge, split, rotate and compress PDFs –\nfully offline on your PC.",
+        "folder": "Install folder:", "desktop": "Create a desktop shortcut",
+        "openwith": "Show under “Open with” for PDF files", "launch": "Launch after installation",
+        "noadmin": "No administrator rights needed.", "install": "Install", "cancel": "Cancel",
+        "failed": "Installation failed:\n{e}", "finished": "Installation complete. You'll find the app in the Start menu.",
+        "finish": "Finish", "confirm_uninstall": "Completely remove {app}?", "removed": "{app} has been removed.",
+    },
+}[LANG]
+SETTINGS_DIR = os.path.join(os.environ.get("APPDATA", ""), APP_NAME)
 
 
 def resource(name):
@@ -43,9 +80,9 @@ def make_shortcut(lnk, target, workdir):
     ps = (
         "$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:LNK);"
         "$s.TargetPath=$env:TGT;$s.WorkingDirectory=$env:WD;$s.IconLocation=$env:TGT+',0';"
-        "$s.Description='PDFs zusammenfügen, teilen, drehen und komprimieren';$s.Save()"
+        "$s.Description=$env:DESC;$s.Save()"
     )
-    env = dict(os.environ, LNK=lnk, TGT=target, WD=workdir)
+    env = dict(os.environ, LNK=lnk, TGT=target, WD=workdir, DESC=TEXT["desc"])
     subprocess.run(["powershell", "-NoProfile", "-Command", ps], env=env, creationflags=NO_WINDOW, timeout=30, check=True)
 
 
@@ -93,7 +130,7 @@ def kill_running():
 
 def register_open_with(exe):
     cmd = f'"{exe}" "%1"'
-    set_key(rf"Software\Classes\{PROGID}", {"": "PDF-Dokument", "FriendlyTypeName": "PDF-Dokument"})
+    set_key(rf"Software\Classes\{PROGID}", {"": TEXT["doctype"], "FriendlyTypeName": TEXT["doctype"]})
     set_key(rf"Software\Classes\{PROGID}\DefaultIcon", {"": f'"{exe}",0'})
     set_key(rf"Software\Classes\{PROGID}\shell\open\command", {"": cmd})
     set_key(r"Software\Classes\.pdf\OpenWithProgids", {PROGID: ""})
@@ -103,9 +140,9 @@ def register_open_with(exe):
 
 
 def install(progress, desktop_shortcut, open_with):
-    progress("Beende laufende Instanz …", 5)
+    progress(TEXT["closing"], 5)
     kill_running()
-    progress("Kopiere Dateien …", 15)
+    progress(TEXT["copying"], 15)
     if os.path.isdir(INSTALL_DIR):
         shutil.rmtree(INSTALL_DIR, ignore_errors=True)
     os.makedirs(INSTALL_DIR, exist_ok=True)
@@ -114,18 +151,18 @@ def install(progress, desktop_shortcut, open_with):
         for i, info in enumerate(names):
             z.extract(info, INSTALL_DIR)
             if i % 25 == 0:
-                progress("Kopiere Dateien …", 15 + int(65 * i / max(1, len(names))))
+                progress(TEXT["copying"], 15 + int(65 * i / max(1, len(names))))
     exe = os.path.join(INSTALL_DIR, APP_EXE)
-    uninstaller = os.path.join(INSTALL_DIR, "Deinstallieren.exe")
+    uninstaller = os.path.join(INSTALL_DIR, "Uninstall.exe")
     if getattr(sys, "frozen", False):
         shutil.copy2(sys.executable, uninstaller)
 
-    progress("Erstelle Verknüpfungen …", 85)
+    progress(TEXT["shortcuts"], 85)
     make_shortcut(START_MENU_LNK, exe, INSTALL_DIR)
     if desktop_shortcut:
         make_shortcut(os.path.join(desktop_dir(), APP_NAME + ".lnk"), exe, INSTALL_DIR)
 
-    progress("Registriere Programm …", 93)
+    progress(TEXT["registering"], 93)
     size_kb = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(INSTALL_DIR) for f in fs) // 1024
     set_key(REG_UNINSTALL, {
         "DisplayName": APP_NAME,
@@ -142,7 +179,7 @@ def install(progress, desktop_shortcut, open_with):
     if open_with:
         register_open_with(exe)
     notify_shell()
-    progress("Fertig!", 100)
+    progress(TEXT["done"], 100)
     return exe
 
 
@@ -157,6 +194,7 @@ def uninstall():
     delete_tree(winreg.HKEY_CURRENT_USER, rf"Software\Classes\Applications\{APP_EXE}")
     delete_value(r"Software\Classes\.pdf\OpenWithProgids", PROGID)
     delete_tree(winreg.HKEY_CURRENT_USER, REG_UNINSTALL)
+    shutil.rmtree(SETTINGS_DIR, ignore_errors=True)
     notify_shell()
     # remove files; the running uninstaller lives inside the folder, so finish via a detached cmd
     for entry in os.listdir(INSTALL_DIR) if os.path.isdir(INSTALL_DIR) else []:
@@ -195,27 +233,27 @@ class InstallerUI:
         txt = ttk.Frame(head)
         txt.pack(side="left", fill="x")
         ttk.Label(txt, text=APP_NAME, font=("Segoe UI", 16, "bold")).pack(anchor="w")
-        ttk.Label(txt, text="PDFs zusammenfügen, teilen, drehen, komprimieren –\nkomplett offline auf deinem PC.",
+        ttk.Label(txt, text=TEXT["tagline"],
                   foreground="#555").pack(anchor="w")
         ttk.Separator(f).pack(fill="x", pady=14)
-        ttk.Label(f, text="Installationsordner:").pack(anchor="w")
+        ttk.Label(f, text=TEXT["folder"]).pack(anchor="w")
         ttk.Label(f, text=INSTALL_DIR, foreground="#555").pack(anchor="w", pady=(0, 10))
         self.v_desk = tk.BooleanVar(value=True)
         self.v_open = tk.BooleanVar(value=True)
         self.v_start = tk.BooleanVar(value=True)
-        ttk.Checkbutton(f, text="Verknüpfung auf dem Desktop", variable=self.v_desk).pack(anchor="w")
-        ttk.Checkbutton(f, text="Bei PDF-Dateien unter „Öffnen mit“ anzeigen", variable=self.v_open).pack(anchor="w")
-        self.cb_start = ttk.Checkbutton(f, text="Nach der Installation starten", variable=self.v_start)
+        ttk.Checkbutton(f, text=TEXT["desktop"], variable=self.v_desk).pack(anchor="w")
+        ttk.Checkbutton(f, text=TEXT["openwith"], variable=self.v_open).pack(anchor="w")
+        self.cb_start = ttk.Checkbutton(f, text=TEXT["launch"], variable=self.v_start)
         self.cb_start.pack(anchor="w")
-        self.status = ttk.Label(f, text="Keine Administratorrechte nötig.", foreground="#555")
+        self.status = ttk.Label(f, text=TEXT["noadmin"], foreground="#555")
         self.status.pack(anchor="w", pady=(14, 4))
         self.bar = ttk.Progressbar(f, length=420, maximum=100)
         self.bar.pack(fill="x")
         btns = ttk.Frame(f)
         btns.pack(fill="x", pady=(16, 0))
-        self.btn = ttk.Button(btns, text="Installieren", command=self.start)
+        self.btn = ttk.Button(btns, text=TEXT["install"], command=self.start)
         self.btn.pack(side="right")
-        self.cancel = ttk.Button(btns, text="Abbrechen", command=self.root.destroy)
+        self.cancel = ttk.Button(btns, text=TEXT["cancel"], command=self.root.destroy)
         self.cancel.pack(side="right", padx=8)
         self.root.update_idletasks()
         w, h = self.root.winfo_width(), self.root.winfo_height()
@@ -233,14 +271,14 @@ class InstallerUI:
         try:
             exe = install(self.progress, self.v_desk.get(), self.v_open.get())
         except Exception as e:  # noqa: BLE001
-            self.root.after(0, lambda: (messagebox.showerror(APP_NAME, f"Installation fehlgeschlagen:\n{e}"),
+            self.root.after(0, lambda: (messagebox.showerror(APP_NAME, TEXT["failed"].format(e=e)),
                                         self.btn.config(state="normal"), self.cancel.config(state="normal")))
             return
         self.root.after(0, lambda: self.done(exe))
 
     def done(self, exe):
-        self.status.config(text="Installation abgeschlossen. Du findest die App im Startmenü.")
-        self.btn.config(text="Fertig", state="normal", command=lambda: self.finish(exe))
+        self.status.config(text=TEXT["finished"])
+        self.btn.config(text=TEXT["finish"], state="normal", command=lambda: self.finish(exe))
 
     def finish(self, exe):
         if self.v_start.get():
@@ -257,11 +295,11 @@ def main():
         if not quiet:
             r = tk.Tk()
             r.withdraw()
-            if not messagebox.askyesno(APP_NAME, f"{APP_NAME} wirklich vollständig entfernen?"):
+            if not messagebox.askyesno(APP_NAME, TEXT["confirm_uninstall"].format(app=APP_NAME)):
                 return
         uninstall()
         if not quiet:
-            messagebox.showinfo(APP_NAME, f"{APP_NAME} wurde entfernt.")
+            messagebox.showinfo(APP_NAME, TEXT["removed"].format(app=APP_NAME))
         schedule_folder_removal()
         return
     if "--quiet" in sys.argv:

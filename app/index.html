@@ -94,6 +94,7 @@ main{min-width:0}
 body.mode-read #editor, body.mode-read .edit-only{display:none!important}
 body.mode-edit #reader, body.mode-edit .read-only{display:none!important}
 body.mode-read{overflow:hidden}
+select.lang{width:auto;padding:7px 8px;border-radius:8px;background:var(--panel)}
 </style>
 </head>
 <body class="mode-read">
@@ -103,14 +104,18 @@ body.mode-read{overflow:hidden}
     Mo-PDF
   </div>
   <div class="tabs" role="tablist">
-    <button id="tabRead" class="active" role="tab">📖 Lesen</button>
-    <button id="tabEdit" role="tab">✏ Bearbeiten</button>
+    <button id="tabRead" class="active" role="tab" data-i18n="tabRead">📖 Lesen</button>
+    <button id="tabEdit" role="tab" data-i18n="tabEdit">✏ Bearbeiten</button>
   </div>
   <div class="spacer"></div>
-  <button id="btnOpenRead" class="read-only">📂 PDF öffnen</button>
-  <button id="btnToEdit" class="read-only primary" disabled>✏ Dieses PDF bearbeiten</button>
-  <button id="btnAdd" class="edit-only">＋ Dateien hinzufügen</button>
-  <button id="btnSave" class="primary edit-only" disabled>⬇ Als PDF speichern</button>
+  <button id="btnOpenRead" class="read-only" data-i18n="openRead">📂 PDF öffnen</button>
+  <button id="btnToEdit" class="read-only primary" disabled data-i18n="toEdit">✏ Dieses PDF bearbeiten</button>
+  <button id="btnAdd" class="edit-only" data-i18n="add">＋ Dateien hinzufügen</button>
+  <button id="btnSave" class="primary edit-only" disabled data-i18n="save">⬇ Als PDF speichern</button>
+  <select id="lang" class="lang" aria-label="Sprache / Language" data-i18n-title="language" title="Sprache">
+    <option value="de">🌐 Deutsch</option>
+    <option value="en">🌐 English</option>
+  </select>
   <input id="file" type="file" multiple accept="application/pdf,image/*" class="hidden">
   <input id="fileRead" type="file" accept="application/pdf,.pdf" class="hidden">
 </header>
@@ -119,10 +124,9 @@ body.mode-read{overflow:hidden}
   <iframe id="pdfFrame" title="PDF-Reader" class="hidden"></iframe>
   <div id="readerEmpty">
     <div id="readerDrop">
-      <strong>PDF zum Lesen öffnen</strong>
-      Datei hierher ziehen oder klicken<br>
-      Suchen · Zoomen · Inhaltsverzeichnis · Drucken · Notizen &amp; Zeichnen<br><br>
-      <span class="hint">Alles läuft lokal auf deinem PC – keine Dateien werden hochgeladen.</span>
+      <strong data-i18n="readerTitle">PDF zum Lesen öffnen</strong>
+      <span data-i18n-html="readerSub">Datei hierher ziehen oder klicken<br>Suchen · Zoomen · Inhaltsverzeichnis · Drucken · Notizen &amp; Zeichnen</span><br><br>
+      <span class="hint" data-i18n="local">Alles läuft lokal auf deinem PC – keine Dateien werden hochgeladen.</span>
     </div>
   </div>
 </section>
@@ -130,65 +134,65 @@ body.mode-read{overflow:hidden}
 <div class="layout" id="editor">
   <aside>
     <div class="card">
-      <h3>Exportieren</h3>
+      <h3 data-i18n="hExport">Exportieren</h3>
       <div class="stack">
-        <button data-need="pages" id="btnMerge">📄 Alle Seiten → eine PDF</button>
-        <button data-need="sel" id="btnExtract">✂ Auswahl als PDF</button>
-        <button data-need="pages" id="btnSplit">🗂 Jede Seite einzeln (ZIP)</button>
-        <button data-need="pages" id="btnSplitN">🧩 Teilen alle N Seiten (ZIP)</button>
-        <button data-need="pages" id="btnImages">🖼 Seiten als Bilder (ZIP)</button>
+        <button data-need="pages" id="btnMerge" data-i18n="merge">📄 Alle Seiten → eine PDF</button>
+        <button data-need="sel" id="btnExtract" data-i18n="extract">✂ Auswahl als PDF</button>
+        <button data-need="pages" id="btnSplit" data-i18n="split">🗂 Jede Seite einzeln (ZIP)</button>
+        <button data-need="pages" id="btnSplitN" data-i18n="splitN">🧩 Teilen alle N Seiten (ZIP)</button>
+        <button data-need="pages" id="btnImages" data-i18n="images">🖼 Seiten als Bilder (ZIP)</button>
       </div>
     </div>
 
     <div class="card">
-      <h3>Bearbeiten</h3>
+      <h3 data-i18n="hEdit">Bearbeiten</h3>
       <details>
-        <summary>Wasserzeichen</summary>
+        <summary data-i18n="wm">Wasserzeichen</summary>
         <div class="stack">
-          <label class="f">Text<input type="text" id="wmText" value="VERTRAULICH"></label>
+          <label class="f"><span data-i18n="text">Text</span><input type="text" id="wmText" value="VERTRAULICH"></label>
           <div class="row">
-            <label class="f">Größe<input type="number" id="wmSize" value="60" min="8" max="300"></label>
-            <label class="f">Deckkraft<input type="number" id="wmOpacity" value="0.2" min="0.05" max="1" step="0.05"></label>
+            <label class="f"><span data-i18n="size">Größe</span><input type="number" id="wmSize" value="60" min="8" max="300"></label>
+            <label class="f"><span data-i18n="opacity">Deckkraft</span><input type="number" id="wmOpacity" value="0.2" min="0.05" max="1" step="0.05"></label>
           </div>
-          <label class="f">Farbe<select id="wmColor"><option value="0.5,0.5,0.5">Grau</option><option value="0.8,0.1,0.1">Rot</option><option value="0.1,0.25,0.7">Blau</option><option value="0,0,0">Schwarz</option></select></label>
-          <label class="f">Winkel<select id="wmAngle"><option value="45">Diagonal</option><option value="0">Waagerecht</option></select></label>
+          <label class="f"><span data-i18n="color">Farbe</span><select id="wmColor"><option value="0.5,0.5,0.5" data-i18n="grey">Grau</option><option value="0.8,0.1,0.1" data-i18n="red">Rot</option><option value="0.1,0.25,0.7" data-i18n="blue">Blau</option><option value="0,0,0" data-i18n="black">Schwarz</option></select></label>
+          <label class="f"><span data-i18n="angle">Winkel</span><select id="wmAngle"><option value="45" data-i18n="diag">Diagonal</option><option value="0" data-i18n="horiz">Waagerecht</option></select></label>
         </div>
       </details>
       <details>
-        <summary>Seitenzahlen</summary>
+        <summary data-i18n="pn">Seitenzahlen</summary>
         <div class="stack">
-          <label class="f"><span><input type="checkbox" id="pnOn"> Seitenzahlen einfügen</span></label>
-          <label class="f">Format<select id="pnFmt"><option value="{n}">1</option><option value="{n} / {t}">1 / 10</option><option value="Seite {n} von {t}">Seite 1 von 10</option><option value="- {n} -">- 1 -</option></select></label>
+          <label class="f"><span><input type="checkbox" id="pnOn"> <span data-i18n="pnOn">Seitenzahlen einfügen</span></span></label>
+          <label class="f"><span data-i18n="format">Format</span><select id="pnFmt"><option value="{n}">1</option><option value="{n} / {t}">1 / 10</option><option value="page" data-i18n="pnFmtPage">Seite 1 von 10</option><option value="- {n} -">- 1 -</option></select></label>
           <div class="row">
-            <label class="f">Position<select id="pnPos"><option value="c">Unten Mitte</option><option value="r">Unten rechts</option><option value="l">Unten links</option></select></label>
-            <label class="f">Größe<input type="number" id="pnSize" value="10" min="6" max="40"></label>
+            <label class="f"><span data-i18n="position">Position</span><select id="pnPos"><option value="c" data-i18n="posC">Unten Mitte</option><option value="r" data-i18n="posR">Unten rechts</option><option value="l" data-i18n="posL">Unten links</option></select></label>
+            <label class="f"><span data-i18n="size">Größe</span><input type="number" id="pnSize" value="10" min="6" max="40"></label>
           </div>
-          <label class="f">Beginnen bei<input type="number" id="pnStart" value="1" min="0"></label>
+          <label class="f"><span data-i18n="startAt">Beginnen bei</span><input type="number" id="pnStart" value="1" min="0"></label>
         </div>
       </details>
-      <p class="hint" style="margin-top:8px">Wasserzeichen (wenn Text vorhanden und aktiviert) und Seitenzahlen werden beim Speichern angewendet.</p>
-      <label class="f" style="margin-top:6px"><span><input type="checkbox" id="wmOn"> Wasserzeichen anwenden</span></label>
+      <p class="hint" style="margin-top:8px" data-i18n="decoHint">Wasserzeichen (wenn Text vorhanden und aktiviert) und Seitenzahlen werden beim Speichern angewendet.</p>
+      <label class="f" style="margin-top:6px"><span><input type="checkbox" id="wmOn"> <span data-i18n="wmOn">Wasserzeichen anwenden</span></span></label>
     </div>
 
     <div class="card">
-      <h3>Komprimieren</h3>
+      <h3 data-i18n="hCompress">Komprimieren</h3>
       <div class="stack">
-        <label class="f">Qualität: <span id="cqLbl">Mittel (110 dpi, 70 %)</span>
+        <label class="f"><span><span data-i18n="quality">Qualität:</span> <span id="cqLbl">Mittel (110 dpi, 70 %)</span></span>
           <select id="cq">
-            <option value="72,0.5">Stark (72 dpi, 50 %)</option>
-            <option value="110,0.7" selected>Mittel (110 dpi, 70 %)</option>
-            <option value="150,0.82">Leicht (150 dpi, 82 %)</option>
+            <option value="72,0.5" data-i18n="cqS">Stark (72 dpi, 50 %)</option>
+            <option value="110,0.7" selected data-i18n="cqM">Mittel (110 dpi, 70 %)</option>
+            <option value="150,0.82" data-i18n="cqL">Leicht (150 dpi, 82 %)</option>
           </select>
         </label>
-        <button data-need="pages" id="btnCompress">🗜 Komprimierte PDF speichern</button>
-        <p class="hint">Seiten werden zu Bildern umgewandelt – Text ist danach nicht mehr markierbar. Ideal für gescannte Dokumente.</p>
+        <button data-need="pages" id="btnCompress" data-i18n="compress">🗜 Komprimierte PDF speichern</button>
+        <p class="hint" data-i18n="compressHint">Seiten werden zu Bildern umgewandelt – Text ist danach nicht mehr markierbar. Ideal für gescannte Dokumente.</p>
       </div>
     </div>
 
     <div class="card">
-      <h3>Bilder → PDF</h3>
-      <label class="f">Bildseiten-Format
-        <select id="imgFmt"><option value="fit">Wie Bild (Originalgröße)</option><option value="a4">A4 (mit Rand)</option></select>
+      <h3 data-i18n="hImg">Bilder → PDF</h3>
+      <label class="f"><span data-i18n="imgFmt">Bildseiten-Format</span>
+        <select id="imgFmt"><option value="fit" data-i18n="imgFit">Wie Bild (Originalgröße)</option><option value="a4" data-i18n="imgA4">A4 (mit Rand)</option></select>
       </label>
     </div>
   </aside>
@@ -196,27 +200,27 @@ body.mode-read{overflow:hidden}
   <main>
     <div class="toolbar" id="toolbar">
       <span class="info" id="info">Keine Dateien geladen</span>
-      <button data-need="pages" id="btnSelAll">Alle wählen</button>
-      <button data-need="sel" id="btnSelNone">Auswahl aufheben</button>
-      <button data-need="sel" id="btnRotL" title="Auswahl links drehen">⟲</button>
-      <button data-need="sel" id="btnRotR" title="Auswahl rechts drehen">⟳</button>
-      <button data-need="sel" id="btnDup">Duplizieren</button>
-      <button data-need="pages" id="btnReverse">Umkehren</button>
-      <button data-need="sel" id="btnDel" class="danger">Löschen</button>
-      <button data-need="pages" id="btnClear" class="danger">Alles leeren</button>
+      <button data-need="pages" id="btnSelAll" data-i18n="selAll">Alle wählen</button>
+      <button data-need="sel" id="btnSelNone" data-i18n="selNone">Auswahl aufheben</button>
+      <button data-need="sel" id="btnRotL" data-i18n-title="rotSelL" title="Auswahl links drehen">⟲</button>
+      <button data-need="sel" id="btnRotR" data-i18n-title="rotSelR" title="Auswahl rechts drehen">⟳</button>
+      <button data-need="sel" id="btnDup" data-i18n="dup">Duplizieren</button>
+      <button data-need="pages" id="btnReverse" data-i18n="reverse">Umkehren</button>
+      <button data-need="sel" id="btnDel" class="danger" data-i18n="del">Löschen</button>
+      <button data-need="pages" id="btnClear" class="danger" data-i18n="clear">Alles leeren</button>
     </div>
     <div id="drop">
-      <strong>PDFs oder Bilder hierher ziehen</strong>
-      oder klicken, um Dateien auszuwählen · zusammenfügen, sortieren, drehen, teilen, komprimieren
+      <strong data-i18n="dropTitle">PDFs oder Bilder hierher ziehen</strong>
+      <span data-i18n="dropSub">oder klicken, um Dateien auszuwählen · zusammenfügen, sortieren, drehen, teilen, komprimieren</span>
     </div>
     <div id="grid"></div>
-    <p class="hint" id="gridHint" style="margin-top:12px" hidden>Tipp: Klick = auswählen · Shift-Klick = Bereich · Strg-Klick = mehrere · Ziehen = umsortieren · Doppelklick = Vorschau · Entf = löschen</p>
+    <p class="hint" id="gridHint" style="margin-top:12px" hidden data-i18n="gridHint">Tipp: Klick = auswählen · Shift-Klick = Bereich · Strg-Klick = mehrere · Ziehen = umsortieren · Doppelklick = Vorschau · Entf = löschen</p>
   </main>
 </div>
 
-<div id="busy"><div class="box"><div class="thumb" style="width:26px;aspect-ratio:1"><div class="spin"></div></div><span id="busyMsg">Arbeite …</span></div></div>
+<div id="busy"><div class="box"><div class="thumb" style="width:26px;aspect-ratio:1"><div class="spin"></div></div><span id="busyMsg">…</span></div></div>
 <div id="toast"></div>
-<div id="viewer"><img alt="Vorschau"></div>
+<div id="viewer"><img alt=""></div>
 
 <script>
 (() => {
@@ -225,6 +229,106 @@ const { PDFDocument, degrees, rgb, StandardFonts } = PDFLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
 
 const $ = s => document.querySelector(s);
+
+// ---------- Languages ----------
+const I18N = {
+  de: {
+    tabRead: '📖 Lesen', tabEdit: '✏ Bearbeiten', openRead: '📂 PDF öffnen', toEdit: '✏ Dieses PDF bearbeiten',
+    add: '＋ Dateien hinzufügen', save: '⬇ Als PDF speichern', language: 'Sprache',
+    readerTitle: 'PDF zum Lesen öffnen',
+    readerSub: 'Datei hierher ziehen oder klicken<br>Suchen · Zoomen · Inhaltsverzeichnis · Drucken · Notizen &amp; Zeichnen',
+    local: 'Alles läuft lokal auf deinem PC – keine Dateien werden hochgeladen.',
+    hExport: 'Exportieren', merge: '📄 Alle Seiten → eine PDF', extract: '✂ Auswahl als PDF',
+    split: '🗂 Jede Seite einzeln (ZIP)', splitN: '🧩 Teilen alle N Seiten (ZIP)', images: '🖼 Seiten als Bilder (ZIP)',
+    hEdit: 'Bearbeiten', wm: 'Wasserzeichen', text: 'Text', size: 'Größe', opacity: 'Deckkraft', color: 'Farbe',
+    grey: 'Grau', red: 'Rot', blue: 'Blau', black: 'Schwarz', angle: 'Winkel', diag: 'Diagonal', horiz: 'Waagerecht',
+    pn: 'Seitenzahlen', pnOn: 'Seitenzahlen einfügen', format: 'Format', pnFmtPage: 'Seite 1 von 10', pnPageFmt: 'Seite {n} von {t}',
+    position: 'Position', posC: 'Unten Mitte', posR: 'Unten rechts', posL: 'Unten links', startAt: 'Beginnen bei',
+    decoHint: 'Wasserzeichen (wenn aktiviert) und Seitenzahlen werden beim Speichern angewendet.',
+    wmOn: 'Wasserzeichen anwenden', wmDefault: 'VERTRAULICH',
+    hCompress: 'Komprimieren', quality: 'Qualität:', cqS: 'Stark (72 dpi, 50 %)', cqM: 'Mittel (110 dpi, 70 %)', cqL: 'Leicht (150 dpi, 82 %)',
+    compress: '🗜 Komprimierte PDF speichern',
+    compressHint: 'Seiten werden zu Bildern umgewandelt – Text ist danach nicht mehr markierbar. Ideal für gescannte Dokumente.',
+    hImg: 'Bilder → PDF', imgFmt: 'Bildseiten-Format', imgFit: 'Wie Bild (Originalgröße)', imgA4: 'A4 (mit Rand)',
+    selAll: 'Alle wählen', selNone: 'Auswahl aufheben', rotSelL: 'Auswahl links drehen', rotSelR: 'Auswahl rechts drehen',
+    dup: 'Duplizieren', reverse: 'Umkehren', del: 'Löschen', clear: 'Alles leeren',
+    dropTitle: 'PDFs oder Bilder hierher ziehen',
+    dropSub: 'oder klicken, um Dateien auszuwählen · zusammenfügen, sortieren, drehen, teilen, komprimieren',
+    gridHint: 'Tipp: Klick = auswählen · Shift-Klick = Bereich · Strg-Klick = mehrere · Ziehen = umsortieren · Doppelklick = Vorschau · Entf = löschen',
+    rotLeft: 'Links drehen', rotRight: 'Rechts drehen', pageShort: 'S.', image: 'Bild',
+    noFiles: 'Keine Dateien geladen',
+    info: ({ n, sel }) => `${n} Seite${n === 1 ? '' : 'n'}${sel ? ` · ${sel} ausgewählt` : ''}`,
+    pagesAdded: ({ n }) => `${n} Seite${n === 1 ? '' : 'n'} hinzugefügt`,
+    imagesExported: ({ n, sel }) => `${n} Bild${n === 1 ? '' : 'er'} exportiert${sel ? ' (Auswahl)' : ''}`,
+    doc: 'dokument', saved: 'Gespeichert: {p}', loading: 'Dateien werden geladen …', unsupported: 'Nicht unterstützt: {n}',
+    loadErr: 'Fehler beim Laden von {n}: {e}', imgErr: 'Bild konnte nicht gelesen werden', previewBusy: 'Vorschau …',
+    clearConfirm: 'Alle Seiten entfernen?', error: 'Fehler: {e}', openErr: 'PDF konnte nicht geöffnet werden: {e}',
+    sfxMerged: '_zusammengefuegt', sfxEdited: '_bearbeitet', sfxSel: '_auswahl', sfxSplit: '_geteilt', sfxImages: '_bilder', sfxCompressed: '_komprimiert',
+    creating: 'PDF wird erstellt …', extracting: 'Auswahl wird extrahiert …', splitting: 'Wird geteilt …',
+    makingImages: 'Bilder werden erzeugt …', compressing: 'Wird komprimiert …',
+    page: 'Seite', part: 'Teil', progress: '{l} {i} / {n} …', perFile: 'Wie viele Seiten pro Datei?',
+    compressBigger: 'Das Ergebnis wäre größer als das Original ({a} → {b}).\nDas passiert bei Vektor-PDFs (z. B. CAD-Zeichnungen, Textdokumente). Trotzdem speichern?',
+    smaller: '{a} → {b} ({p} % kleiner)', readerLocale: 'de',
+  },
+  en: {
+    tabRead: '📖 Read', tabEdit: '✏ Edit', openRead: '📂 Open PDF', toEdit: '✏ Edit this PDF',
+    add: '＋ Add files', save: '⬇ Save as PDF', language: 'Language',
+    readerTitle: 'Open a PDF to read',
+    readerSub: 'Drag a file here or click<br>Search · Zoom · Table of contents · Print · Notes &amp; drawing',
+    local: 'Everything runs locally on your PC – no files are uploaded.',
+    hExport: 'Export', merge: '📄 All pages → one PDF', extract: '✂ Selection as PDF',
+    split: '🗂 Each page separately (ZIP)', splitN: '🧩 Split every N pages (ZIP)', images: '🖼 Pages as images (ZIP)',
+    hEdit: 'Edit', wm: 'Watermark', text: 'Text', size: 'Size', opacity: 'Opacity', color: 'Color',
+    grey: 'Grey', red: 'Red', blue: 'Blue', black: 'Black', angle: 'Angle', diag: 'Diagonal', horiz: 'Horizontal',
+    pn: 'Page numbers', pnOn: 'Add page numbers', format: 'Format', pnFmtPage: 'Page 1 of 10', pnPageFmt: 'Page {n} of {t}',
+    position: 'Position', posC: 'Bottom center', posR: 'Bottom right', posL: 'Bottom left', startAt: 'Start at',
+    decoHint: 'The watermark (if enabled) and page numbers are applied when saving.',
+    wmOn: 'Apply watermark', wmDefault: 'CONFIDENTIAL',
+    hCompress: 'Compress', quality: 'Quality:', cqS: 'Strong (72 dpi, 50%)', cqM: 'Medium (110 dpi, 70%)', cqL: 'Light (150 dpi, 82%)',
+    compress: '🗜 Save compressed PDF',
+    compressHint: 'Pages are converted to images – text can no longer be selected afterwards. Ideal for scanned documents.',
+    hImg: 'Images → PDF', imgFmt: 'Image page size', imgFit: 'Same as image (original size)', imgA4: 'A4 (with margin)',
+    selAll: 'Select all', selNone: 'Deselect', rotSelL: 'Rotate selection left', rotSelR: 'Rotate selection right',
+    dup: 'Duplicate', reverse: 'Reverse', del: 'Delete', clear: 'Clear all',
+    dropTitle: 'Drag PDFs or images here',
+    dropSub: 'or click to choose files · merge, reorder, rotate, split, compress',
+    gridHint: 'Tip: click = select · Shift-click = range · Ctrl-click = multiple · drag = reorder · double-click = preview · Del = delete',
+    rotLeft: 'Rotate left', rotRight: 'Rotate right', pageShort: 'p.', image: 'Image',
+    noFiles: 'No files loaded',
+    info: ({ n, sel }) => `${n} page${n === 1 ? '' : 's'}${sel ? ` · ${sel} selected` : ''}`,
+    pagesAdded: ({ n }) => `${n} page${n === 1 ? '' : 's'} added`,
+    imagesExported: ({ n, sel }) => `${n} image${n === 1 ? '' : 's'} exported${sel ? ' (selection)' : ''}`,
+    doc: 'document', saved: 'Saved: {p}', loading: 'Loading files …', unsupported: 'Not supported: {n}',
+    loadErr: 'Error loading {n}: {e}', imgErr: 'Could not read image', previewBusy: 'Preview …',
+    clearConfirm: 'Remove all pages?', error: 'Error: {e}', openErr: 'Could not open PDF: {e}',
+    sfxMerged: '_merged', sfxEdited: '_edited', sfxSel: '_selection', sfxSplit: '_split', sfxImages: '_images', sfxCompressed: '_compressed',
+    creating: 'Creating PDF …', extracting: 'Extracting selection …', splitting: 'Splitting …',
+    makingImages: 'Creating images …', compressing: 'Compressing …',
+    page: 'Page', part: 'Part', progress: '{l} {i} / {n} …', perFile: 'How many pages per file?',
+    compressBigger: 'The result would be larger than the original ({a} → {b}).\nThis happens with vector PDFs (e.g. CAD drawings, text documents). Save anyway?',
+    smaller: '{a} → {b} ({p}% smaller)', readerLocale: 'en-US',
+  },
+};
+function detectLang(){
+  try { const s = localStorage.getItem('mopdf.lang'); if (s && I18N[s]) return s; } catch {}
+  return /^de\b/i.test(navigator.language || '') ? 'de' : 'en';
+}
+let lang = detectLang();
+function t(key, vars = {}){
+  const v = (I18N[lang] && I18N[lang][key]) ?? I18N.de[key] ?? key;
+  return typeof v === 'function' ? v(vars) : String(v).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+}
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  const wm = document.getElementById('wmText');
+  if (wm && Object.values(I18N).some(d => d.wmDefault === wm.value)) wm.value = t('wmDefault');
+  const cq = document.getElementById('cq');
+  if (cq) document.getElementById('cqLbl').textContent = cq.selectedOptions[0].text;
+  document.getElementById('lang').value = lang;
+}
 const sources = new Map();   // id -> {id,name,kind:'pdf'|'image',bytes,mime,pdfjs,libDoc,imgW,imgH}
 let pages = [];              // {uid,src,index,rot,selected,thumb}
 let uidCounter = 0, srcCounter = 0, lastClicked = null;
@@ -236,7 +340,7 @@ function idle(){ $('#busy').classList.remove('on'); }
 const tick = () => new Promise(r => setTimeout(r, 0));
 function baseName(){
   const names = [...new Set(pages.map(p => sources.get(p.src).name))];
-  const n = names.length === 1 ? names[0].replace(/\.[^.]+$/, '') : 'dokument';
+  const n = names.length === 1 ? names[0].replace(/\.[^.]+$/, '') : t('doc');
   return n.replace(/[\\/:*?"<>|]/g, '_');
 }
 const desktop = () => window.pywebview && window.pywebview.api && window.pywebview.api.save_file;
@@ -244,8 +348,8 @@ function blobToB64(blob){ return new Promise((res, rej) => { const r = new FileR
 async function download(data, filename, mime){
   const blob = data instanceof Blob ? data : new Blob([data], { type: mime });
   if (desktop()){
-    const path = await window.pywebview.api.save_file(filename, await blobToB64(blob));
-    if (path) toast('Gespeichert: ' + path, 4000);
+    const path = await window.pywebview.api.save_file(filename, await blobToB64(blob), lang);
+    if (path) toast(t('saved', { p: path }), 4000);
     return;
   }
   const a = document.createElement('a');
@@ -258,7 +362,7 @@ async function download(data, filename, mime){
 async function addFiles(fileList){
   const files = [...fileList];
   if (!files.length) return;
-  busy('Dateien werden geladen …');
+  busy(t('loading'));
   let added = 0;
   for (const f of files){
     try {
@@ -275,20 +379,20 @@ async function addFiles(fileList){
         const p = newPage(id, 0); p.thumb = img.src; pages.push(p);
         added++;
       } else {
-        toast(`Nicht unterstützt: ${f.name}`);
+        toast(t('unsupported', { n: f.name }));
       }
     } catch (e){
       console.error(e);
-      toast(`Fehler beim Laden von ${f.name}: ${e.message || e}`, 5000);
+      toast(t('loadErr', { n: f.name, e: e.message || e }), 5000);
     }
   }
   idle();
   render();
   renderThumbs();
-  if (added) toast(`${added} Seite${added === 1 ? '' : 'n'} hinzugefügt`);
+  if (added) toast(t('pagesAdded', { n: added }));
 }
 function newPage(src, index){ return { uid: ++uidCounter, src, index, rot: 0, selected: false, thumb: null }; }
-function loadImage(url){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Bild konnte nicht gelesen werden')); i.src = url; }); }
+function loadImage(url){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error(t('imgErr'))); i.src = url; }); }
 
 // ---------- Rendering with pdf.js ----------
 async function renderPdfPage(src, index, { width, scale, rotation = 0 }){
@@ -339,12 +443,12 @@ function render(){
     d.innerHTML = `
       <span class="num">${i + 1}</span>
       <div class="acts">
-        <button data-a="l" title="Links drehen">⟲</button>
-        <button data-a="r" title="Rechts drehen">⟳</button>
-        <button data-a="x" title="Löschen" class="danger">✕</button>
+        <button data-a="l" title="${t('rotLeft')}">⟲</button>
+        <button data-a="r" title="${t('rotRight')}">⟳</button>
+        <button data-a="x" title="${t('del')}" class="danger">✕</button>
       </div>
       <div class="thumb">${p.thumb ? `<img src="${p.thumb}" style="transform:rotate(${p.rot}deg)" alt="">` : '<div class="spin"></div>'}</div>
-      <div class="meta"><span class="name" title="${esc(s.name)}">${esc(s.name)}</span><span>${s.kind === 'pdf' ? 'S.' + (p.index + 1) : 'Bild'}</span></div>`;
+      <div class="meta"><span class="name" title="${esc(s.name)}">${esc(s.name)}</span><span>${s.kind === 'pdf' ? t('pageShort') + (p.index + 1) : t('image')}</span></div>`;
     frag.appendChild(d);
   });
   grid.appendChild(frag);
@@ -356,7 +460,7 @@ function updateState(){
   const n = pages.length, sel = pages.filter(p => p.selected).length;
   $('#drop').classList.toggle('hidden', n > 0);
   $('#gridHint').hidden = n === 0;
-  $('#info').textContent = n ? `${n} Seite${n === 1 ? '' : 'n'}${sel ? ` · ${sel} ausgewählt` : ''}` : 'Keine Dateien geladen';
+  $('#info').textContent = n ? t('info', { n, sel }) : t('noFiles');
   document.querySelectorAll('[data-need]').forEach(b => b.disabled = b.dataset.need === 'sel' ? !sel : !n);
   $('#btnSave').disabled = !n;
 }
@@ -386,7 +490,7 @@ grid.addEventListener('dblclick', async e => {
   const card = e.target.closest('.page'); if (!card || e.target.closest('button')) return;
   const p = pages.find(q => q.uid === +card.dataset.uid), s = sources.get(p.src);
   let url;
-  if (s.kind === 'pdf'){ busy('Vorschau …'); try { url = (await renderPdfPage(s, p.index, { scale: 2, rotation: p.rot })).toDataURL('image/png'); } finally { idle(); } }
+  if (s.kind === 'pdf'){ busy(t('previewBusy')); try { url = (await renderPdfPage(s, p.index, { scale: 2, rotation: p.rot })).toDataURL('image/png'); } finally { idle(); } }
   else { url = s.url; }
   const img = $('#viewer img'); img.src = url; img.style.transform = s.kind === 'image' ? `rotate(${p.rot}deg)` : '';
   $('#viewer').classList.add('on');
@@ -452,7 +556,7 @@ $('#btnDup').onclick = () => {
   for (const p of pages){ out.push(p); if (p.selected) out.push({ ...p, uid: ++uidCounter, selected: false }); }
   pages = out; render();
 };
-$('#btnClear').onclick = () => { if (confirm('Alle Seiten entfernen?')){ pages = []; sources.clear(); render(); } };
+$('#btnClear').onclick = () => { if (confirm(t('clearConfirm'))){ pages = []; sources.clear(); render(); } };
 document.addEventListener('keydown', e => {
   if (mode !== 'edit' || e.target.matches('input,select,textarea')) return;
   if (e.key === 'Escape') $('#viewer').classList.remove('on');
@@ -574,7 +678,7 @@ async function applyDecorations(doc){
     }
     if (pnOn){
       const size = +$('#pnSize').value || 10;
-      const text = sanitize($('#pnFmt').value.replace('{n}', i + start).replace('{t}', total + start - 1));
+      const text = sanitize(($('#pnFmt').value === 'page' ? t('pnPageFmt') : $('#pnFmt').value).replace('{n}', i + start).replace('{t}', total + start - 1));
       const tw = font2.widthOfTextAtSize(text, size), m = 22;
       const pos = $('#pnPos').value;
       const vx = pos === 'c' ? vw / 2 : pos === 'r' ? vw - m - tw / 2 : m + tw / 2;
@@ -589,30 +693,30 @@ function sanitize(t){ return [...t].map(ch => /[\x20-\x7E\xA0-\xFF€–—„�
 async function run(label, fn){
   busy(label); await tick();
   try { await fn(); }
-  catch (e){ console.error(e); toast('Fehler: ' + (e.message || e), 6000); }
+  catch (e){ console.error(e); toast(t('error', { e: e.message || e }), 6000); }
   finally { idle(); }
 }
 
-$('#btnSave').onclick = $('#btnMerge').onclick = () => run('PDF wird erstellt …', async () => {
-  await download(await buildPdf(pages), baseName() + (sources.size > 1 ? '_zusammengefuegt' : '_bearbeitet') + '.pdf', 'application/pdf');
+$('#btnSave').onclick = $('#btnMerge').onclick = () => run(t('creating'), async () => {
+  await download(await buildPdf(pages), baseName() + (sources.size > 1 ? t('sfxMerged') : t('sfxEdited')) + '.pdf', 'application/pdf');
 });
-$('#btnExtract').onclick = () => run('Auswahl wird extrahiert …', async () => {
-  await download(await buildPdf(sel()), baseName() + '_auswahl.pdf', 'application/pdf');
+$('#btnExtract').onclick = () => run(t('extracting'), async () => {
+  await download(await buildPdf(sel()), baseName() + t('sfxSel') + '.pdf', 'application/pdf');
 });
 async function zipGroups(groups, label){
   const zip = new JSZip(), bn = baseName(), pad = String(groups.length).length;
   for (let i = 0; i < groups.length; i++){
-    $('#busyMsg').textContent = `${label} ${i + 1} / ${groups.length} …`;
+    $('#busyMsg').textContent = t('progress', { l: label, i: i + 1, n: groups.length });
     zip.file(`${bn}_${String(i + 1).padStart(pad, '0')}.pdf`, await buildPdf(groups[i]));
   }
-  await download(await zip.generateAsync({ type: 'blob' }), bn + '_geteilt.zip');
+  await download(await zip.generateAsync({ type: 'blob' }), bn + t('sfxSplit') + '.zip');
 }
-$('#btnSplit').onclick = () => run('Wird geteilt …', () => zipGroups(pages.map(p => [p]), 'Seite'));
+$('#btnSplit').onclick = () => run(t('splitting'), () => zipGroups(pages.map(p => [p]), t('page')));
 $('#btnSplitN').onclick = () => {
-  const n = parseInt(prompt('Wie viele Seiten pro Datei?', '2'), 10);
+  const n = parseInt(prompt(t('perFile'), '2'), 10);
   if (!(n > 0)) return;
   const groups = []; for (let i = 0; i < pages.length; i += n) groups.push(pages.slice(i, i + n));
-  run('Wird geteilt …', () => zipGroups(groups, 'Teil'));
+  run(t('splitting'), () => zipGroups(groups, t('part')));
 };
 
 async function rasterPage(p, dpi, mime, quality){
@@ -631,22 +735,22 @@ async function rasterPage(p, dpi, mime, quality){
   const blob = await new Promise(r => c.toBlob(r, mime, quality));
   return { blob, w: c.width, h: c.height, scale };
 }
-$('#btnImages').onclick = () => run('Bilder werden erzeugt …', async () => {
+$('#btnImages').onclick = () => run(t('makingImages'), async () => {
   const list = sel().length ? sel() : pages, zip = new JSZip(), bn = baseName(), pad = String(list.length).length;
   for (let i = 0; i < list.length; i++){
-    $('#busyMsg').textContent = `Seite ${i + 1} / ${list.length} …`;
+    $('#busyMsg').textContent = t('progress', { l: t('page'), i: i + 1, n: list.length });
     const { blob } = await rasterPage(list[i], 150, 'image/png');
     zip.file(`${bn}_${String(i + 1).padStart(pad, '0')}.png`, blob);
   }
-  await download(await zip.generateAsync({ type: 'blob' }), bn + '_bilder.zip');
-  toast(`${list.length} Bild${list.length === 1 ? '' : 'er'} exportiert${sel().length ? ' (Auswahl)' : ''}`);
+  await download(await zip.generateAsync({ type: 'blob' }), bn + t('sfxImages') + '.zip');
+  toast(t('imagesExported', { n: list.length, sel: sel().length }));
 });
-$('#btnCompress').onclick = () => run('Wird komprimiert …', async () => {
+$('#btnCompress').onclick = () => run(t('compressing'), async () => {
   const [dpi, q] = $('#cq').value.split(',').map(Number);
   const out = await PDFDocument.create();
   let before = 0; for (const s of new Set(pages.map(p => p.src))) before += sources.get(s).bytes.length;
   for (let i = 0; i < pages.length; i++){
-    $('#busyMsg').textContent = `Seite ${i + 1} / ${pages.length} …`;
+    $('#busyMsg').textContent = t('progress', { l: t('page'), i: i + 1, n: pages.length });
     const { blob, w, h, scale } = await rasterPage(pages[i], dpi, 'image/jpeg', q);
     const emb = await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
     const pw = sources.get(pages[i].src).kind === 'pdf' ? w / scale : w * 0.75, ph = sources.get(pages[i].src).kind === 'pdf' ? h / scale : h * 0.75;
@@ -655,9 +759,9 @@ $('#btnCompress').onclick = () => run('Wird komprimiert …', async () => {
   await applyDecorations(out);
   const bytes = await out.save();
   const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
-  if (bytes.length >= before && !confirm(`Das Ergebnis wäre größer als das Original (${kb(before)} → ${kb(bytes.length)}).\nDas passiert bei Vektor-PDFs (z. B. CAD-Zeichnungen, Textdokumente). Trotzdem speichern?`)) return;
-  await download(bytes, baseName() + '_komprimiert.pdf', 'application/pdf');
-  if (bytes.length < before) toast(`${kb(before)} → ${kb(bytes.length)} (${Math.round((1 - bytes.length / before) * 100)} % kleiner)`, 6000);
+  if (bytes.length >= before && !confirm(t('compressBigger', { a: kb(before), b: kb(bytes.length) }))) return;
+  await download(bytes, baseName() + t('sfxCompressed') + '.pdf', 'application/pdf');
+  if (bytes.length < before) toast(t('smaller', { a: kb(before), b: kb(bytes.length), p: Math.round((1 - bytes.length / before) * 100) }), 6000);
 });
 $('#cq').onchange = e => $('#cqLbl').textContent = e.target.selectedOptions[0].text;
 
@@ -689,13 +793,13 @@ function ensureFrame(){
         await app.initializedPromise;
         // route the viewer's "Speichern"/"Herunterladen" through our save dialog
         const dm = app.downloadManager;
-        dm.download = (blob, url, filename) => download(blob, filename || 'dokument.pdf');
-        dm.downloadData = (data, filename, type) => download(new Blob([data], { type: type || 'application/pdf' }), filename || 'dokument.pdf');
+        dm.download = (blob, url, filename) => download(blob, filename || (t('doc') + '.pdf'));
+        dm.downloadData = (data, filename, type) => download(new Blob([data], { type: type || 'application/pdf' }), filename || (t('doc') + '.pdf'));
         app.eventBus.on('documentloaded', () => { $('#readerEmpty').classList.add('hidden'); $('#btnToEdit').disabled = false; });
         resolve(app);
       } catch (e){ reject(e); }
     };
-    f.src = 'viewer/web/viewer.html?file=';
+    f.src = 'viewer/web/viewer.html?file=&v=' + (++frameGen);
   });
   return framePromise;
 }
@@ -706,7 +810,7 @@ async function openInReader(file){
     const app = await ensureFrame();
     const url = URL.createObjectURL(file);
     await app.open({ url: url + '#' + file.name, originalUrl: file.name });
-  } catch (e){ console.error(e); toast('PDF konnte nicht geöffnet werden: ' + (e.message || e), 6000); }
+  } catch (e){ console.error(e); toast(t('openErr', { e: e.message || e }), 6000); }
 }
 async function sendReaderToEditor(switchMode = true){
   const app = framePromise && readerApp();
@@ -715,7 +819,7 @@ async function sendReaderToEditor(switchMode = true){
   try {
     const doc = app.pdfDocument;
     const data = doc.annotationStorage && doc.annotationStorage.size > 0 ? await doc.saveDocument() : await doc.getData();
-    const name = app._docFilename || 'dokument.pdf';
+    const name = app._docFilename || (t('doc') + '.pdf');
     if (switchMode) setMode('edit');
     await addFiles([new File([data], name, { type: 'application/pdf' })]);
   } finally { autoSending = false; }
@@ -735,11 +839,47 @@ function routeFiles(fileList){
   addFiles(files);
 }
 
+// pdf.js reader language follows the app language
+let frameGen = 0;
+document.addEventListener('webviewerloaded', e => {
+  try { e.detail.source.PDFViewerApplicationOptions.set('locale', t('readerLocale')); } catch (err) { console.error(err); }
+});
+async function reloadReader(){
+  if (!framePromise) return;
+  const app = readerApp();
+  let file = null;
+  if (app && app.pdfDocument){
+    const d = app.pdfDocument;
+    const data = d.annotationStorage && d.annotationStorage.size > 0 ? await d.saveDocument() : await d.getData();
+    file = new File([data], app._docFilename || (t('doc') + '.pdf'), { type: 'application/pdf' });
+  }
+  framePromise = null;
+  if (file){
+    const a = await ensureFrame();
+    await a.open({ url: URL.createObjectURL(file) + '#' + file.name, originalUrl: file.name });
+  } else {
+    $('#pdfFrame').classList.add('hidden');
+    $('#pdfFrame').src = 'about:blank';
+  }
+}
+$('#lang').addEventListener('change', e => {
+  lang = e.target.value;
+  try { localStorage.setItem('mopdf.lang', lang); } catch {}
+  try { window.pywebview && window.pywebview.api && window.pywebview.api.set_lang(lang); } catch {}
+  applyLang(); render(); syncHH();
+  reloadReader().catch(err => console.error(err));
+});
+
+applyLang();
 render();
 setMode('read');
 
 // Desktop app: open files passed on the command line ("Öffnen mit …")
 window.addEventListener('pywebviewready', async () => {
+  try {
+    const saved = await window.pywebview.api.get_lang();
+    if (saved && I18N[saved] && saved !== lang){ lang = saved; applyLang(); render(); syncHH(); }
+  } catch (e){ console.error(e); }
   try {
     const list = await window.pywebview.api.initial_files();
     if (!list || !list.length) return;

@@ -34,12 +34,12 @@ Read, merge, split, rotate and compress PDFs: free, offline, no uploads.
 **🔒 Private:** Everything runs locally on your PC. Your files are never uploaded,
 and the app doesn't need an internet connection.
 
-> The app's interface is currently in German.
+**🌐 Languages:** English and German. The language is detected automatically and can be switched in the app.
 
 ## Installation (Windows 10/11)
 
 1. Download **`Mo-PDF-Setup.exe`** from [Releases](../../releases/latest).
-2. Double-click it and choose **Installieren** (Install). No administrator rights needed.
+2. Double-click it and choose **Install**. No administrator rights needed.
 3. Mo-PDF then appears in the Start menu and, if you choose, on the desktop.
 
 > The installer is not digitally signed, so Windows may show "Windows protected your PC".

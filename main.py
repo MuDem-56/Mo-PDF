@@ -1,5 +1,6 @@
 """Mo-PDF – Desktop-Start (pywebview + Edge WebView2)."""
 import base64
+import json
 import mimetypes
 import os
 import sys
@@ -17,9 +18,18 @@ def resource(*parts):
 SAVE = getattr(getattr(webview, "FileDialog", None), "SAVE", None) or webview.SAVE_DIALOG
 
 FILE_TYPES = {
-    ".pdf": ("PDF-Dateien (*.pdf)", "Alle Dateien (*.*)"),
-    ".zip": ("ZIP-Archive (*.zip)", "Alle Dateien (*.*)"),
+    "de": {".pdf": "PDF-Dateien (*.pdf)", ".zip": "ZIP-Archive (*.zip)", "*": "Alle Dateien (*.*)"},
+    "en": {".pdf": "PDF files (*.pdf)", ".zip": "ZIP archives (*.zip)", "*": "All files (*.*)"},
 }
+SETTINGS = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), APP_NAME, "settings.json")
+
+
+def load_settings():
+    try:
+        with open(SETTINGS, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
 
 
 class Api:
@@ -31,9 +41,22 @@ class Api:
         if args:
             self._last_dir = os.path.dirname(args[0])
 
-    def save_file(self, filename, b64):
+    def get_lang(self):
+        return load_settings().get("lang")
+
+    def set_lang(self, lang):
+        data = load_settings()
+        data["lang"] = lang
+        os.makedirs(os.path.dirname(SETTINGS), exist_ok=True)
+        with open(SETTINGS, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        return True
+
+    def save_file(self, filename, b64, lang="de"):
         ext = os.path.splitext(filename)[1].lower()
-        kwargs = dict(save_filename=filename, file_types=FILE_TYPES.get(ext, ("Alle Dateien (*.*)",)))
+        names = FILE_TYPES.get(lang, FILE_TYPES["en"])
+        types = (names[ext], names["*"]) if ext in names else (names["*"],)
+        kwargs = dict(save_filename=filename, file_types=types)
         if self._last_dir:
             kwargs["directory"] = self._last_dir
         result = self._window.create_file_dialog(SAVE, **kwargs)
