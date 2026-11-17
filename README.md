@@ -1,81 +1,83 @@
-<p align="center"><img src="build_assets/icon.png" width="96" alt="Mo-PDF Logo"></p>
+<p align="center"><img src="build_assets/icon.png" width="96" alt="Mo-PDF logo"></p>
 
 <h1 align="center">Mo-PDF</h1>
 
 <p align="center">
-PDFs lesen, zusammenfügen, teilen, drehen und komprimieren – kostenlos, offline, ohne Upload.
+Read, merge, split, rotate and compress PDFs: free, offline, no uploads.
 </p>
 
 <p align="center">
-<a href="../../releases/latest"><b>⬇ Windows-Installer herunterladen</b></a>
+<a href="../../releases/latest"><b>⬇ Download the Windows installer</b></a>
 </p>
 
 ---
 
-## Funktionen
+## Features
 
-**📖 Lesen**
-- Schneller PDF-Reader (basiert auf Mozillas PDF.js)
-- Volltextsuche, Zoom, Seitenminiaturen, Inhaltsverzeichnis
-- Drucken
-- Text, Freihand-Zeichnungen und Bilder einfügen und als PDF speichern
-- Als Programm unter „Öffnen mit“ für PDF-Dateien verfügbar
+**📖 Read**
+- Fast PDF reader (built on Mozilla's PDF.js)
+- Full-text search, zoom, page thumbnails, table of contents
+- Printing
+- Add text, freehand drawings and images, then save them to the PDF
+- Shows up under "Open with" for PDF files
 
-**✏ Bearbeiten**
-- Mehrere PDFs und Bilder zu einer PDF **zusammenfügen**
-- Seiten per Drag & Drop **sortieren**, **drehen**, **löschen**, **duplizieren**
-- Auswahl als eigene PDF **extrahieren**
-- **Teilen**: jede Seite einzeln oder alle N Seiten (als ZIP)
-- Seiten als **PNG-Bilder** exportieren
-- **Wasserzeichen** und **Seitenzahlen** einfügen
-- **Bilder → PDF** (JPG, PNG, WebP …)
-- **Komprimieren** (ideal für gescannte Dokumente)
+**✏ Edit**
+- **Merge** multiple PDFs and images into one PDF
+- **Reorder** pages with drag & drop; **rotate**, **delete** or **duplicate** pages
+- **Extract** a selection of pages as a new PDF
+- **Split** into single pages or every N pages (as a ZIP)
+- Export pages as **PNG images**
+- Add **watermarks** and **page numbers**
+- **Images → PDF** (JPG, PNG, WebP …)
+- **Compress** (best for scanned documents)
 
-**🔒 Privat:** Alles läuft lokal auf deinem PC. Es werden keine Dateien hochgeladen,
-und die App braucht kein Internet.
+**🔒 Private:** Everything runs locally on your PC. Your files are never uploaded,
+and the app doesn't need an internet connection.
+
+> The app's interface is currently in German.
 
 ## Installation (Windows 10/11)
 
-1. Unter [Releases](../../releases/latest) die Datei **`Mo-PDF-Setup.exe`** herunterladen.
-2. Doppelklicken → **Installieren**. Es sind keine Administratorrechte nötig.
-3. Mo-PDF ist danach im Startmenü und, wenn gewünscht, auf dem Desktop zu finden.
+1. Download **`Mo-PDF-Setup.exe`** from [Releases](../../releases/latest).
+2. Double-click it and choose **Installieren** (Install). No administrator rights needed.
+3. Mo-PDF then appears in the Start menu and, if you choose, on the desktop.
 
-> Weil der Installer nicht digital signiert ist, zeigt Windows evtl. „Der Computer wurde geschützt“.
-> Dann auf **Weitere Informationen → Trotzdem ausführen** klicken.
+> The installer is not digitally signed, so Windows may show "Windows protected your PC".
+> Click **More info → Run anyway**.
 
-Installiert wird nach `%LOCALAPPDATA%\Programs\Mo-PDF`. Deinstallieren geht über
-**Einstellungen → Apps → Mo-PDF**.
+Mo-PDF installs to `%LOCALAPPDATA%\Programs\Mo-PDF`. To uninstall, go to
+**Settings → Apps → Mo-PDF**.
 
-Mo-PDF als Standard-App für PDFs festlegen: Rechtsklick auf eine PDF → **Öffnen mit** →
-**Andere App auswählen** → **Mo-PDF** → **Immer**.
+To make Mo-PDF your default PDF app: right-click a PDF → **Open with** →
+**Choose another app** → **Mo-PDF** → **Always**.
 
-## Selbst bauen
+## Building from source
 
-Voraussetzungen: Windows, Python 3.12+ und Edge WebView2 (bei Windows 11 vorinstalliert).
+Requirements: Windows, Python 3.12+ and Edge WebView2 (preinstalled on Windows 11).
 
 ```bat
 python -m venv .venv
 .venv\Scripts\python -m pip install pywebview pyinstaller
-.venv\Scripts\python main.py        :: App direkt starten
-.venv\Scripts\python build.py       :: Installer\Mo-PDF-Setup.exe bauen
+.venv\Scripts\python main.py        :: run the app directly
+.venv\Scripts\python build.py       :: build Installer\Mo-PDF-Setup.exe
 ```
 
-Die Oberfläche (`app/index.html`) läuft auch ohne Python in jedem modernen Browser,
-wenn man den Ordner über einen lokalen Webserver ausliefert, zum Beispiel mit
-`python -m http.server` → `http://localhost:8000/app/`.
+The interface (`app/index.html`) also runs in any modern browser without Python
+if you serve the folder from a local web server, e.g. `python -m http.server`
+→ `http://localhost:8000/app/`.
 
-## Aufbau
+## Project structure
 
-| Datei / Ordner | Zweck |
+| File / folder | Purpose |
 |---|---|
-| `app/index.html` | Gesamte Oberfläche: Lesen und Bearbeiten |
-| `app/lib/` | pdf-lib, PDF.js und JSZip (lokal, damit die App offline läuft) |
-| `app/viewer/` | PDF.js-Reader |
-| `main.py` | Desktop-Fenster (pywebview + WebView2), Speichern-Dialog, „Öffnen mit“ |
-| `installer.py` | Setup und Deinstallation (pro Benutzer, ohne Adminrechte) |
-| `build.py` | Baut `Mo-PDF.exe` und `Mo-PDF-Setup.exe` mit PyInstaller |
+| `app/index.html` | The entire interface: reading and editing |
+| `app/lib/` | pdf-lib, PDF.js and JSZip (bundled so the app works offline) |
+| `app/viewer/` | PDF.js reader |
+| `main.py` | Desktop window (pywebview + WebView2), save dialog, "Open with" support |
+| `installer.py` | Setup and uninstaller (per user, no admin rights) |
+| `build.py` | Builds `Mo-PDF.exe` and `Mo-PDF-Setup.exe` with PyInstaller |
 
-## Lizenz
+## License
 
-[MIT](LICENSE). Hinweise zu den enthaltenen Fremdkomponenten stehen in
+[MIT](LICENSE). Third-party components and their licenses are listed in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
